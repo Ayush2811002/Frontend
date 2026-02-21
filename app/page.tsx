@@ -107,6 +107,39 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+    const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+
+      await signInWithPopup(auth, provider);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Welcome Back 🚀",
+        text: "Signed in with Google",
+        background: "#0b0f1a",
+        color: "#fff",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Google Login Failed",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-[#001a33] via-[#000a15] to-[#0a0015] relative">
       {/* Animated background particles */}
@@ -321,6 +354,8 @@ export default function LoginPage() {
               {/* Google */}
               <button
                 type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
                 className="flex items-center justify-center gap-2 py-2.5
       bg-white/10 border border-white/20 rounded-lg
       text-gray-300 hover:bg-white/15 hover:border-cyan-500/40

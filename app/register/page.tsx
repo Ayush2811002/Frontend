@@ -5,8 +5,14 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, User } from "lucide-react";
 import Image from "next/image";
 import Swal from "sweetalert2";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
+
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -15,6 +21,9 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // ===============================
+  // 🔐 Email + Password Register
+  // ===============================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -45,14 +54,12 @@ export default function RegisterPage() {
     try {
       setIsLoading(true);
 
-      // 🔐 Create user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
 
-      // 👤 Save display name
       await updateProfile(userCredential.user, {
         displayName: name,
       });
@@ -82,36 +89,75 @@ export default function RegisterPage() {
     }
   };
 
+  // ===============================
+  // 🔵 Google Sign-In
+  // ===============================
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+
+      const provider = new GoogleAuthProvider();
+
+      provider.setCustomParameters({
+        prompt: "select_account",
+      });
+
+      const result = await signInWithPopup(auth, provider);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Welcome 🎉",
+        text: `Signed in as ${result.user.displayName}`,
+        background: "#0b0f1a",
+        color: "#fff",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Google Sign-In Failed",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-[#001a33] via-[#000a15] to-[#0a0015] relative">
-      {/* Background particles */}
+            {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(40)].map((_, i) => (
+        {[...Array(50)].map((_, i) => (
           <div
             key={i}
-            className="absolute animate-pulse"
+            className="absolute"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               width: `${Math.random() * 3 + 1}px`,
               height: `${Math.random() * 3 + 1}px`,
-              backgroundColor: ["#00d4ff", "#7c3aed", "#00ff88"].at(
-                Math.floor(Math.random() * 3),
-              ),
-              opacity: Math.random() * 0.4 + 0.2,
+              backgroundColor: ["#00d4ff", "#7c3aed", "#00ff88"][
+                Math.floor(Math.random() * 3)
+              ],
+              opacity: Math.random() * 0.5 + 0.2,
+              animation: `float ${Math.random() * 6 + 6}s ease-in-out infinite`,
             }}
           />
         ))}
       </div>
-
-      {/* Gradient Orbs */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-cyan-500 rounded-full blur-3xl opacity-10" />
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-500 rounded-full blur-3xl opacity-10" />
-
-      {/* Content */}
+            {/* Gradient orbs */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-bl from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-violet-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="glass-effect-dark rounded-3xl p-8 shadow-2xl">
+            
             {/* Logo */}
             <div className="flex justify-center mb-4">
               <Image
@@ -144,7 +190,7 @@ export default function RegisterPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Ayush Srivastava"
+                    placeholder="Your Name"
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40"
                   />
                 </div>
@@ -180,26 +226,15 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Button */}
+              {/* Register Button */}
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full mt-4 relative group"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 rounded-xl blur opacity-70 group-hover:opacity-100 transition" />
-
                 <div className="relative flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl text-white font-medium">
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    <>
-                      Register
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
-                    </>
-                  )}
+                  {isLoading ? "Processing..." : "Register"}
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </button>
             </form>
@@ -211,36 +246,20 @@ export default function RegisterPage() {
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
-            {/* OAuth Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Google */}
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 py-2.5 bg-white/10 border border-white/20 rounded-lg text-gray-300 hover:bg-white/15 hover:border-cyan-500/40 hover:text-white transition text-sm font-medium"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="Google"
-                  className="w-4 h-4"
-                />
-                Google
-              </button>
-
-              {/* GitHub */}
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 py-2.5 bg-white/10 border border-white/20 rounded-lg text-gray-300 hover:bg-white/15 hover:border-cyan-500/40 hover:text-white transition text-sm font-medium"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/512317/github-142.svg"
-                  alt="GitHub"
-                  className="w-4 h-4 invert"
-                />
-                GitHub
-              </button>
-            </div>
-
-            {/* Footer */}
+            {/* Google Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white/10 border border-white/20 rounded-lg text-gray-300 hover:bg-white/15 hover:border-cyan-500/40 hover:text-white transition text-sm font-medium"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                className="w-4 h-4"
+              />
+              Continue with Google
+            </button>
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
                 Already have an account?{" "}
@@ -252,9 +271,41 @@ export default function RegisterPage() {
                 </span>
               </p>
             </div>
+
           </div>
+          
         </div>
+
       </div>
+      <style jsx>{`
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translateY(-40px);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes blob {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(40px, -40px) scale(1.1);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 10s infinite ease-in-out;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+`}</style>
     </div>
   );
 }
