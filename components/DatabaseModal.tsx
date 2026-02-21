@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 import { X, Zap, Check } from "lucide-react";
-
+import Swal from "sweetalert2";
+// interface DatabaseModalProps {
+//   onClose: () => void;
+// }
 interface DatabaseModalProps {
   onClose: () => void;
+  onConnected: (metadata: any) => void;
 }
-
-export default function DatabaseModal({ onClose }: DatabaseModalProps) {
+export default function DatabaseModal({
+  onClose,
+  onConnected,
+}: DatabaseModalProps) {
   const [formData, setFormData] = useState({
     host: "",
     username: "",
@@ -33,16 +39,61 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
   //   setTesting(false);
   //   setTestSuccess(true);
   // };
+  // const handleTestConnection = async () => {
+  //   try {
+  //     setTesting(true);
+  //     setTestSuccess(false);
+
+  //     const response = await fetch(`${API_URL}/api/metadata/extract`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         host: formData.host,
+  //         user: formData.username,
+  //         password: formData.password,
+  //         database: formData.database,
+  //       }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Connection Failed");
+
+  //     setTestSuccess(true);
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Connection Failed ❌");
+  //   } finally {
+  //     setTesting(false);
+  //   }
+  // };
   const handleTestConnection = async () => {
+    if (formData.dbType !== "MySQL") {
+      Swal.fire({
+        title: "Not Supported",
+        text: "Currently only MySQL databases are supported",
+        icon: "warning",
+      });
+      return;
+    }
+
     try {
       setTesting(true);
       setTestSuccess(false);
 
+      // const response = await fetch(`${API_URL}/api/metadata/extract`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     host: formData.host,
+      //     user: formData.username,
+      //     password: formData.password,
+      //     database: formData.database,
+      //   }),
+      // });
       const response = await fetch(`${API_URL}/api/metadata/extract`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           host: formData.host,
           user: formData.username,
@@ -51,22 +102,64 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
         }),
       });
 
-      if (!response.ok) throw new Error("Connection Failed");
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Failed to fetch metadata");
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Connection failed");
+      }
 
       setTestSuccess(true);
     } catch (error) {
-      console.error(error);
-      alert("Connection Failed ❌");
+      Swal.fire({
+        title: "Connection Failed",
+        text: (error as Error).message,
+        icon: "error",
+      });
     } finally {
       setTesting(false);
     }
   };
-
   // const handleConnect = async () => {
   //   setConnecting(true);
   //   await new Promise((resolve) => setTimeout(resolve, 1500));
   //   setConnecting(false);
   //   onClose();
+  // };
+  // const handleConnect = async () => {
+  //   try {
+  //     setConnecting(true);
+
+  //     const response = await fetch(`${API_URL}/api/metadata/extract`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         host: formData.host,
+  //         user: formData.username,
+  //         password: formData.password,
+  //         database: formData.database,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     console.log("FULL METADATA:", data);
+
+  //     // 👉 Later we push this to dashboard state/store
+  //     onClose();
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Failed to fetch metadata ❌");
+  //   } finally {
+  //     setConnecting(false);
+  //   }
   // };
   const handleConnect = async () => {
     try {
@@ -87,18 +180,36 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
 
       const data = await response.json();
 
+      localStorage.setItem("dbMetadata", JSON.stringify(data));
+      onConnected(data); // 🔥 THIS IS THE KEY
       console.log("FULL METADATA:", data);
+      // ✅ SWEET ALERT SUCCESS 😈🔥
+      Swal.fire({
+        title: "Connected!",
+        text: "Database connected successfully 🚀",
+        icon: "success",
+        background: "#0f172a", // dark futuristic look
+        color: "#fff",
+        confirmButtonColor: "#06b6d4", // cyan neon vibe
+      });
 
-      // 👉 Later we push this to dashboard state/store
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Failed to fetch metadata ❌");
+
+      // ❌ SWEET ALERT ERROR
+      Swal.fire({
+        title: "Connection Failed",
+        text: "Unable to connect database ❌",
+        icon: "error",
+        background: "#0f172a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setConnecting(false);
     }
   };
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in-scale">
       <div className="glass-effect-neon rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl animate-slide-in-up transform hover:scale-105 transition-transform duration-300">

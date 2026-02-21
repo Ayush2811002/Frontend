@@ -101,7 +101,12 @@ export default function DashboardPage() {
       {/* Modal */}
       {showDatabaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-out">
-          <DatabaseModal onClose={() => setShowDatabaseModal(false)} />
+          <DatabaseModal
+            onClose={() => setShowDatabaseModal(false)}
+            onConnected={(metadata) => {
+              console.log(metadata); // or save it in state
+            }}
+          />
         </div>
       )}
       {showProfileModal && (
