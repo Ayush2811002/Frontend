@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react"; // 
+import { useState } from "react"; //
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ArrowRight } from "lucide-react";
-
+import Image from "next/image";
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -58,17 +58,20 @@ export default function LoginPage() {
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center animate-glow-pulse transform hover:scale-110 transition-transform">
                   <span className="text-white font-bold text-lg">▧</span>
                 </div> */}
-              <div className="flex items-center gap-3 mb-4">
-                <img
-                  src="/photos/logo.png"
+              {/* <div className="flex items-center gap-3 mb-4"> */}
+              <div className="flex justify-center mb-3">
+                <Image
+                  src="/logo.png"
                   alt="Logo"
-                  className="w-10 h-10 object-contain"
+                  width={160}
+                  height={160}
+                  className="object-contain"
                 />
-
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
-                  NoMoreNulls
-                </h1>
               </div>
+              {/* <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                  NoMoreNulls
+                </h1> */}
+              {/* </div> */}
 
               <p className="text-xs sm:text-sm text-gray-400">
                 AI-Powered Data Intelligence Platform
@@ -205,7 +208,7 @@ export default function LoginPage() {
               className="grid grid-cols-2 gap-3 animate-slide-in-up"
               style={{ animationDelay: "400ms" }}
             >
-              {["Google", "GitHub"].map((provider) => (
+              {/* {["Google", "GitHub"].map((provider) => (
                 <button
                   key={provider}
                   type="button"
@@ -215,7 +218,39 @@ export default function LoginPage() {
                   <span className="hidden sm:inline">{provider}</span>
                   <span className="sm:hidden">{provider.split("")[0]}</span>
                 </button>
-              ))}
+              ))} */}
+
+              {/* Google */}
+              <button
+                type="button"
+                className="flex items-center justify-center gap-2 py-2.5
+      bg-white/10 border border-white/20 rounded-lg
+      text-gray-300 hover:bg-white/15 hover:border-cyan-500/40
+      hover:text-white transition text-sm font-medium"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google"
+                  className="w-4 h-4"
+                />
+                Google
+              </button>
+
+              {/* GitHub */}
+              <button
+                type="button"
+                className="flex items-center justify-center gap-2 py-2.5
+      bg-white/10 border border-white/20 rounded-lg
+      text-gray-300 hover:bg-white/15 hover:border-cyan-500/40
+      hover:text-white transition text-sm font-medium"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/512317/github-142.svg"
+                  alt="GitHub"
+                  className="w-4 h-4 invert"
+                />
+                GitHub
+              </button>
             </div>
 
             {/* Footer */}
@@ -226,7 +261,7 @@ export default function LoginPage() {
               <p className="text-xs sm:text-sm text-gray-500">
                 New to DB-DOC-AI?{" "}
                 <a
-                  href="#"
+                  href="/register"
                   className="text-cyan-400 hover:text-cyan-300 font-medium transition"
                 >
                   Create an account
@@ -246,7 +281,7 @@ export default function LoginPage() {
       </div>
 
       {/* CSS animations */}
-      <style jsx>{`
+      {/* <style jsx>{`
         @keyframes float {
           0%,
           100% {
@@ -294,7 +329,7 @@ export default function LoginPage() {
         .animation-delay-4000 {
           animation-delay: 4s;
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 }

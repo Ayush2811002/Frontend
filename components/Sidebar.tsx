@@ -1,7 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { LayoutDashboard, Database, BarChart3, MessageCircle, AlertCircle, Network, Settings, LogOut, Menu, X } from 'lucide-react';
+import { useState } from "react";
+import {
+  LayoutDashboard,
+  Database,
+  BarChart3,
+  MessageCircle,
+  AlertCircle,
+  Network,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface SidebarProps {
   activeSection: string;
@@ -9,16 +20,20 @@ interface SidebarProps {
   setShowDatabaseModal: (show: boolean) => void;
 }
 
-export default function Sidebar({ activeSection, setActiveSection, setShowDatabaseModal }: SidebarProps) {
+export default function Sidebar({
+  activeSection,
+  setActiveSection,
+  setShowDatabaseModal,
+}: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'explorer', label: 'Metadata Explorer', icon: Database },
-    { id: 'quality', label: 'Data Quality', icon: BarChart3 },
-    { id: 'chat', label: 'AI Chat', icon: MessageCircle },
-    { id: 'alerts', label: 'Alerts', icon: AlertCircle },
-    { id: 'lineage', label: 'Data Lineage', icon: Network },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "explorer", label: "Metadata Explorer", icon: Database },
+    { id: "quality", label: "Data Quality", icon: BarChart3 },
+    { id: "chat", label: "AI Chat", icon: MessageCircle },
+    { id: "alerts", label: "Alerts", icon: AlertCircle },
+    { id: "lineage", label: "Data Lineage", icon: Network },
   ];
 
   return (
@@ -30,7 +45,7 @@ export default function Sidebar({ activeSection, setActiveSection, setShowDataba
         </div>
         <div className="animate-slide-in-left min-w-0 flex-1">
           <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent truncate">
-            DB-DOC-AI
+            NoMoreNulls
           </h1>
           <p className="text-xs text-gray-500 truncate">Intelligence</p>
         </div>
@@ -48,8 +63,8 @@ export default function Sidebar({ activeSection, setActiveSection, setShowDataba
               style={{ animationDelay: `${idx * 40}ms` }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-500 ease-out animate-slide-in-left group ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-500/25 to-blue-500/25 border border-cyan-500/40 text-cyan-400 shadow-lg shadow-cyan-500/20'
-                  : 'text-gray-400 hover:text-gray-300 hover:bg-white/10 hover:border hover:border-cyan-500/20'
+                  ? "bg-gradient-to-r from-cyan-500/25 to-blue-500/25 border border-cyan-500/40 text-cyan-400 shadow-lg shadow-cyan-500/20"
+                  : "text-gray-400 hover:text-gray-300 hover:bg-white/10 hover:border hover:border-cyan-500/20"
               } active:scale-95`}
             >
               <Icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />

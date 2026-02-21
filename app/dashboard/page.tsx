@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
-import DashboardContent from '@/components/DashboardContent';
-import DatabaseModal from '@/components/DatabaseModal';
-import { DashboardSkeleton } from '@/components/SkeletonLoader';
+import { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
+import DashboardContent from "@/components/DashboardContent";
+import DatabaseModal from "@/components/DatabaseModal";
+import { DashboardSkeleton } from "@/components/SkeletonLoader";
 
 export default function DashboardPage() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState("dashboard");
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,26 +23,34 @@ export default function DashboardPage() {
       {/* Animated background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-40 -right-40 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-bl from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
-        <div className="absolute -bottom-40 -left-40 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-tr from-violet-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-blob" style={{ animationDelay: '4s' }} />
+        <div
+          className="absolute -bottom-40 -left-40 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-tr from-violet-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-blob"
+          style={{ animationDelay: "4s" }}
+        />
       </div>
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm transition-opacity duration-300 ease-out"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar - Desktop always visible, Mobile/Tablet as drawer */}
-      <div className={`fixed lg:relative z-40 lg:z-20 h-screen transition-all duration-500 ease-out transform lg:transform-none ${
-        sidebarOpen 
-          ? 'w-64 translate-x-0 shadow-2xl' 
-          : '-translate-x-full lg:translate-x-0 w-64'
-      }`}>
-        <Sidebar 
-          activeSection={activeSection} 
+      <div
+        className={`fixed lg:relative z-40 lg:z-20 h-screen transition-all duration-500 ease-out transform lg:transform-none ${
+          sidebarOpen
+            ? "w-64 translate-x-0 shadow-2xl"
+            : "-translate-x-full lg:translate-x-0 w-64"
+        }`}
+      >
+        <Sidebar
+          activeSection={activeSection}
           setActiveSection={(section) => {
             setActiveSection(section);
             setSidebarOpen(false);
@@ -65,7 +73,9 @@ export default function DashboardPage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center animate-glow-pulse">
               <span className="text-white font-bold text-sm">▧</span>
             </div>
-            <span className="text-sm font-semibold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">DB-DOC-AI</span>
+            <span className="text-sm font-semibold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              NoMoreNulls
+            </span>
           </div>
           <div className="w-10" />
         </div>
@@ -79,7 +89,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
-            <DashboardContent 
+            <DashboardContent
               activeSection={activeSection}
               setShowDatabaseModal={setShowDatabaseModal}
             />
