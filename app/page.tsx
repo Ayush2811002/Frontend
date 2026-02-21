@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Lock, Mail, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      router.push('/dashboard');
+      router.push("/dashboard");
     }, 1500);
   };
 
@@ -32,8 +32,8 @@ export default function LoginPage() {
               top: `${Math.random() * 100}%`,
               width: `${Math.random() * 3 + 1}px`,
               height: `${Math.random() * 3 + 1}px`,
-              backgroundColor: ['#00d4ff', '#7c3aed', '#00ff88'].at(
-                Math.floor(Math.random() * 3)
+              backgroundColor: ["#00d4ff", "#7c3aed", "#00ff88"].at(
+                Math.floor(Math.random() * 3),
               ),
               opacity: Math.random() * 0.5 + 0.2,
               animation: `float ${Math.random() * 4 + 4}s infinite`,
@@ -54,22 +54,35 @@ export default function LoginPage() {
           <div className="glass-effect-dark rounded-3xl p-6 sm:p-8 shadow-2xl animate-slide-in-up transform hover:scale-105 transition-all duration-300">
             {/* Header */}
             <div className="mb-6 sm:mb-8 animate-slide-in-left">
-              <div className="flex items-center gap-2 mb-4">
+              {/* <div className="flex items-center gap-2 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center animate-glow-pulse transform hover:scale-110 transition-transform">
                   <span className="text-white font-bold text-lg">▧</span>
-                </div>
+                </div> */}
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src="/photos/logo.png"
+                  alt="Logo"
+                  className="w-10 h-10 object-contain"
+                />
+
                 <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
-                  DB-DOC-AI
+                  NoMoreNulls
                 </h1>
               </div>
+
               <p className="text-xs sm:text-sm text-gray-400">
                 AI-Powered Data Intelligence Platform
               </p>
             </div>
 
             {/* Subtitle */}
-            <div className="mb-6 sm:mb-8 animate-slide-in-left" style={{ animationDelay: '100ms' }}>
-              <h2 className="text-base sm:text-lg text-gray-200 font-semibold mb-2">Welcome Back</h2>
+            <div
+              className="mb-6 sm:mb-8 animate-slide-in-left"
+              style={{ animationDelay: "100ms" }}
+            >
+              <h2 className="text-base sm:text-lg text-gray-200 font-semibold mb-2">
+                Welcome Back
+              </h2>
               <p className="text-xs sm:text-sm text-gray-500">
                 Sign in to access your intelligent data insights
               </p>
@@ -78,8 +91,14 @@ export default function LoginPage() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-4">
               {/* Email input */}
-              <div className="animate-slide-in-up" style={{ animationDelay: '150ms' }}>
-                <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+              <div
+                className="animate-slide-in-up"
+                style={{ animationDelay: "150ms" }}
+              >
+                <label
+                  htmlFor="email"
+                  className="block text-xs sm:text-sm font-medium text-gray-300 mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative group">
@@ -99,8 +118,14 @@ export default function LoginPage() {
               </div>
 
               {/* Password input */}
-              <div className="animate-slide-in-up" style={{ animationDelay: '200ms' }}>
-                <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+              <div
+                className="animate-slide-in-up"
+                style={{ animationDelay: "200ms" }}
+              >
+                <label
+                  htmlFor="password"
+                  className="block text-xs sm:text-sm font-medium text-gray-300 mb-2"
+                >
                   Password
                 </label>
                 <div className="relative group">
@@ -120,7 +145,10 @@ export default function LoginPage() {
               </div>
 
               {/* Remember & Forgot */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm animate-slide-in-up" style={{ animationDelay: '250ms' }}>
+              <div
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm animate-slide-in-up"
+                style={{ animationDelay: "250ms" }}
+              >
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input
                     type="checkbox"
@@ -130,7 +158,10 @@ export default function LoginPage() {
                     Remember me
                   </span>
                 </label>
-                <a href="#" className="text-cyan-400 hover:text-cyan-300 transition font-medium">
+                <a
+                  href="#"
+                  className="text-cyan-400 hover:text-cyan-300 transition font-medium"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -139,7 +170,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-6 sm:mt-8 relative group animate-slide-in-up" style={{ animationDelay: '300ms' }}
+                className="w-full mt-6 sm:mt-8 relative group animate-slide-in-up"
+                style={{ animationDelay: "300ms" }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 rounded-xl blur group-hover:blur-md opacity-75 group-hover:opacity-100 transition duration-300 group-disabled:opacity-50" />
                 <div className="relative flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl text-white font-semibold text-sm sm:text-base hover:shadow-lg hover:shadow-cyan-500/50 transition group-disabled:opacity-70">
@@ -159,15 +191,21 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="my-6 sm:my-8 flex items-center gap-3 animate-slide-in-up" style={{ animationDelay: '350ms' }}>
+            <div
+              className="my-6 sm:my-8 flex items-center gap-3 animate-slide-in-up"
+              style={{ animationDelay: "350ms" }}
+            >
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               <span className="text-xs text-gray-500">OR</span>
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </div>
 
             {/* OAuth buttons */}
-            <div className="grid grid-cols-2 gap-3 animate-slide-in-up" style={{ animationDelay: '400ms' }}>
-              {['Google', 'GitHub'].map((provider) => (
+            <div
+              className="grid grid-cols-2 gap-3 animate-slide-in-up"
+              style={{ animationDelay: "400ms" }}
+            >
+              {["Google", "GitHub"].map((provider) => (
                 <button
                   key={provider}
                   type="button"
@@ -175,16 +213,22 @@ export default function LoginPage() {
                 >
                   <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 group-hover:scale-110 transition-transform" />
                   <span className="hidden sm:inline">{provider}</span>
-                  <span className="sm:hidden">{provider.split('')[0]}</span>
+                  <span className="sm:hidden">{provider.split("")[0]}</span>
                 </button>
               ))}
             </div>
 
             {/* Footer */}
-            <div className="mt-6 sm:mt-8 text-center animate-slide-in-up" style={{ animationDelay: '450ms' }}>
+            <div
+              className="mt-6 sm:mt-8 text-center animate-slide-in-up"
+              style={{ animationDelay: "450ms" }}
+            >
               <p className="text-xs sm:text-sm text-gray-500">
-                New to DB-DOC-AI?{' '}
-                <a href="#" className="text-cyan-400 hover:text-cyan-300 font-medium transition">
+                New to DB-DOC-AI?{" "}
+                <a
+                  href="#"
+                  className="text-cyan-400 hover:text-cyan-300 font-medium transition"
+                >
                   Create an account
                 </a>
               </p>
@@ -192,10 +236,11 @@ export default function LoginPage() {
           </div>
 
           {/* Bottom info */}
-          <div className="mt-8 text-center text-xs sm:text-xs text-gray-600 animate-slide-in-up" style={{ animationDelay: '500ms' }}>
-            <p className="px-2">
-              Enterprise-grade security · Privacy focused
-            </p>
+          <div
+            className="mt-8 text-center text-xs sm:text-xs text-gray-600 animate-slide-in-up"
+            style={{ animationDelay: "500ms" }}
+          >
+            <p className="px-2">Enterprise-grade security · Privacy focused</p>
           </div>
         </div>
       </div>
