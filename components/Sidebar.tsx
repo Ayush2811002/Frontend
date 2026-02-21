@@ -1,5 +1,8 @@
 "use client";
-
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,
@@ -18,15 +21,57 @@ interface SidebarProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   setShowDatabaseModal: (show: boolean) => void;
+  setShowProfileModal: (show: boolean) => void; // ✅ NEW
 }
 
 export default function Sidebar({
   activeSection,
   setActiveSection,
   setShowDatabaseModal,
+  setShowProfileModal, // ✅ NEW
 }: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Logout?",
+      text: "You will be signed out of your account",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, logout",
+      cancelButtonText: "Cancel",
+      background: "#0b0f1a",
+      color: "#fff",
+      confirmButtonColor: "#ef4444",
+    });
 
+    if (!result.isConfirmed) return;
+
+    try {
+      await signOut(auth);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Logged Out 👋",
+        text: "See you soon!",
+        background: "#0b0f1a",
+        color: "#fff",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      router.push("/"); // or /login
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Logout Failed",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    }
+  };
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "explorer", label: "Metadata Explorer", icon: Database },
@@ -87,11 +132,18 @@ export default function Sidebar({
 
       {/* Footer */}
       <div className="p-4 border-t border-white/10 space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-gray-300 hover:bg-white/10 rounded-lg transition-all duration-200 text-sm group">
+        <button
+          onClick={() => setShowProfileModal(true)}
+          className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-gray-300 hover:bg-white/10 rounded-lg transition-all duration-200 text-sm group"
+        >
           <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform flex-shrink-0" />
           <span className="truncate">Settings</span>
         </button>
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200 text-sm group">
+        {/* Logout button with red styling and confirmation */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200 text-sm group"
+        >
           <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" />
           <span className="truncate">Logout</span>
         </button>

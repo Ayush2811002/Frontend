@@ -6,13 +6,13 @@ import Sidebar from "@/components/Sidebar";
 import DashboardContent from "@/components/DashboardContent";
 import DatabaseModal from "@/components/DatabaseModal";
 import { DashboardSkeleton } from "@/components/SkeletonLoader";
-
+import ProfileModal from "@/components/ProfileModal";
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [showProfileModal, setShowProfileModal] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
@@ -56,6 +56,7 @@ export default function DashboardPage() {
             setSidebarOpen(false);
           }}
           setShowDatabaseModal={setShowDatabaseModal}
+          setShowProfileModal={setShowProfileModal}
         />
       </div>
 
@@ -101,6 +102,11 @@ export default function DashboardPage() {
       {showDatabaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-out">
           <DatabaseModal onClose={() => setShowDatabaseModal(false)} />
+        </div>
+      )}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <ProfileModal onClose={() => setShowProfileModal(false)} />
         </div>
       )}
     </div>
