@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, User } from "lucide-react";
 import Image from "next/image";
-
+import Swal from "sweetalert2";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -13,15 +15,71 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setIsLoading(true);
+    if (!name || !email || !password) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all fields",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#06b6d4",
+      });
+      return;
+    }
 
-    setTimeout(() => {
-      setIsLoading(false);
+    if (password.length < 6) {
+      Swal.fire({
+        icon: "warning",
+        title: "Weak Password",
+        text: "Password must be at least 6 characters",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#06b6d4",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // 🔐 Create user
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      // 👤 Save display name
+      await updateProfile(userCredential.user, {
+        displayName: name,
+      });
+
+      await Swal.fire({
+        icon: "success",
+        title: "Account Created 🎉",
+        text: "Welcome aboard!",
+        background: "#0b0f1a",
+        color: "#fff",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       router.push("/dashboard");
-    }, 1500);
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,17 +1,22 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth } from "firebase/auth"; // ✅ ADD THIS
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDuLkPZ2XWW3sONxDole71H3Mrj2wUtjtQ",
+  authDomain: "hackfest-d1b09.firebaseapp.com",
+  projectId: "hackfest-d1b09",
+  storageBucket: "hackfest-d1b09.firebasestorage.app",
+  messagingSenderId: "236892650371",
+  appId: "1:236892650371:web:b6e5358f6d7a8d8fa654b6",
+  measurementId: "G-12MQYQGKE8",
 };
 
-// ✅ Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// ✅ Export Auth
-export const auth = getAuth(app);
+const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
+export const auth = getAuth(app); // ✅ THIS IS THE CRITICAL LINE

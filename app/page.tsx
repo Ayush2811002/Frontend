@@ -2,23 +2,111 @@
 
 import { useState } from "react"; //
 import { useRouter } from "next/navigation";
-import { Lock, Mail, ArrowRight } from "lucide-react";
+import Swal from "sweetalert2";
+
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Lock, Mail, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Swal.fire({
+        icon: "warning",
+        title: "Email Required",
+        text: "Please enter your email address first",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#06b6d4",
+      });
+      return;
+    }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/dashboard");
-    }, 1500);
+    try {
+      await sendPasswordResetEmail(auth, email);
+
+      Swal.fire({
+        icon: "success",
+        title: "Reset Email Sent 📧",
+        text: "Check your inbox to reset your password",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#06b6d4",
+      });
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     router.push("/dashboard");
+  //   }, 1500);
+  // };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
+    if (!email || !password) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please enter email and password",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#06b6d4",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      await signInWithEmailAndPassword(auth, email, password);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Welcome Back 🚀",
+        text: "Login successful",
+        background: "#0b0f1a",
+        color: "#fff",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: error.message,
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-[#001a33] via-[#000a15] to-[#0a0015] relative">
       {/* Animated background particles */}
@@ -137,12 +225,21 @@ export default function LoginPage() {
                     <Lock className="absolute left-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-500 group-hover:text-violet-400 transition" />
                     <input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"} // ✅ MAGIC
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 text-sm focus:outline-none focus:border-violet-500/50 focus:bg-white/15 focus:ring-2 focus:ring-violet-500/30 transition hover:bg-white/15"
+                      className="w-full pl-10 pr-10 py-3 bg-white/10 border border-white/20 rounded-lg text-white"
                     />
+
+                    {/* Eye Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 text-gray-400 hover:text-white transition"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -161,12 +258,13 @@ export default function LoginPage() {
                     Remember me
                   </span>
                 </label>
-                <a
-                  href="#"
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
                   className="text-cyan-400 hover:text-cyan-300 transition font-medium"
                 >
                   Forgot password?
-                </a>
+                </button>
               </div>
 
               {/* Submit button */}
