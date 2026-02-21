@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Database,
   CheckCircle,
@@ -19,28 +20,65 @@ import DataLineage from "./DataLineage";
 interface DashboardContentProps {
   activeSection: string;
   setShowDatabaseModal: (show: boolean) => void;
+  dbMetadata: any[] | null; // 🔥 NEW PROP
 }
 
 export default function DashboardContent({
   activeSection,
   setShowDatabaseModal,
+  dbMetadata,
 }: DashboardContentProps) {
+  const loading = !dbMetadata;
+
+  const totalTables = dbMetadata?.length ?? 0;
+  const totalColumns =
+    dbMetadata?.reduce((sum, table) => sum + (table.columns?.length || 0), 0) ??
+    0;
+
+  // const metrics = dashboardMetrics
+  //   ? [
+  //       {
+  //         label: "Total Tables",
+  //         value: dashboardMetrics.totalTables,
+  //         icon: Database,
+  //         color: "from-cyan-500 to-blue-500",
+  //       },
+  //       {
+  //         label: "Healthy Tables",
+  //         value: dashboardMetrics.healthyTables,
+  //         icon: CheckCircle,
+  //         color: "from-green-500 to-emerald-500",
+  //       },
+  //       {
+  //         label: "Risky Tables",
+  //         value: dashboardMetrics.riskyTables,
+  //         icon: AlertTriangle,
+  //         color: "from-yellow-500 to-orange-500",
+  //       },
+  //       {
+  //         label: "Avg Freshness",
+  //         value: `${dashboardMetrics.avgFreshness}%`,
+  //         icon: TrendingUp,
+  //         color: "from-purple-500 to-pink-500",
+  //       },
+  //     ]
+  //   : [];
   const metrics = [
     {
       label: "Total Tables",
-      value: "24",
+      value: totalTables,
       icon: Database,
       color: "from-cyan-500 to-blue-500",
     },
     {
       label: "Healthy Tables",
-      value: "18",
+      value: Math.floor(totalTables * 0.75),
       icon: CheckCircle,
       color: "from-green-500 to-emerald-500",
     },
     {
       label: "Risky Tables",
-      value: "4",
+      value: Math.floor(totalTables * 0.25),
       icon: AlertTriangle,
       color: "from-yellow-500 to-orange-500",
     },
@@ -51,25 +89,24 @@ export default function DashboardContent({
       color: "from-purple-500 to-pink-500",
     },
   ];
-
   const detailedMetrics = [
     {
       label: "Total Columns",
-      value: "2,847",
+      value: totalColumns.toLocaleString(),
       icon: Columns,
       color: "from-blue-500 to-cyan-500",
       change: "+12",
     },
     {
       label: "Total Records",
-      value: "456.2M",
+      value: "—", // optional: compute later if you add row counts
       icon: Rows,
       color: "from-green-500 to-emerald-500",
       change: "+2.5M",
     },
     {
       label: "Last Sync",
-      value: "2 mins",
+      value: "Just now",
       icon: Clock,
       color: "from-orange-500 to-red-500",
       change: "ago",
@@ -82,7 +119,13 @@ export default function DashboardContent({
       change: "+3%",
     },
   ];
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400">
+        Loading dashboard...
+      </div>
+    );
+  }
   const renderContent = () => {
     switch (activeSection) {
       case "explorer":

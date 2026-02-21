@@ -9,6 +9,7 @@ import { DashboardSkeleton } from "@/components/SkeletonLoader";
 import ProfileModal from "@/components/ProfileModal";
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [dbMetadata, setDbMetadata] = useState<any[] | null>(null);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,7 +18,12 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
-
+  useEffect(() => {
+    const saved = localStorage.getItem("dbMetadata");
+    if (saved) {
+      setDbMetadata(JSON.parse(saved));
+    }
+  }, []);
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#001a33] via-[#000a15] to-[#0a0015] flex overflow-hidden">
       {/* Animated background orbs */}
@@ -93,6 +99,7 @@ export default function DashboardPage() {
             <DashboardContent
               activeSection={activeSection}
               setShowDatabaseModal={setShowDatabaseModal}
+              dbMetadata={dbMetadata} // 🔥 PASS DATA
             />
           </div>
         )}
@@ -104,7 +111,8 @@ export default function DashboardPage() {
           <DatabaseModal
             onClose={() => setShowDatabaseModal(false)}
             onConnected={(metadata) => {
-              console.log(metadata); // or save it in state
+              setDbMetadata(metadata); // 🔥 STORE IT
+              setActiveSection("dashboard"); // optional
             }}
           />
         </div>
