@@ -22,11 +22,20 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
 
   // ===============================
+  // 📧 Email Validation Helper
+  // ===============================
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  // ===============================
   // 🔐 Email + Password Register
   // ===============================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 1. Basic empty check
     if (!name || !email || !password) {
       Swal.fire({
         icon: "warning",
@@ -39,6 +48,20 @@ export default function RegisterPage() {
       return;
     }
 
+    // 2. Email Format Validation
+    if (!validateEmail(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address (e.g., name@domain.com)",
+        background: "#0b0f1a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+      });
+      return;
+    }
+
+    // 3. Password length check
     if (password.length < 6) {
       Swal.fire({
         icon: "warning",
@@ -76,10 +99,17 @@ export default function RegisterPage() {
 
       router.push("/dashboard");
     } catch (error: any) {
+      let errorMessage = error.message;
+      
+      // Better error handling for Firebase
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "This email is already registered.";
+      }
+
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
-        text: error.message,
+        text: errorMessage,
         background: "#0b0f1a",
         color: "#fff",
         confirmButtonColor: "#ef4444",
@@ -95,12 +125,8 @@ export default function RegisterPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-
       const provider = new GoogleAuthProvider();
-
-      provider.setCustomParameters({
-        prompt: "select_account",
-      });
+      provider.setCustomParameters({ prompt: "select_account" });
 
       const result = await signInWithPopup(auth, provider);
 
@@ -131,8 +157,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-[#001a33] via-[#000a15] to-[#0a0015] relative">
-            {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(50)].map((_, i) => (
           <div
             key={i}
@@ -151,9 +177,11 @@ export default function RegisterPage() {
           />
         ))}
       </div>
-            {/* Gradient orbs */}
+
+      {/* Gradient orbs */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-bl from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
       <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-violet-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
+      
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="glass-effect-dark rounded-3xl p-8 shadow-2xl">
@@ -171,9 +199,7 @@ export default function RegisterPage() {
 
             {/* Heading */}
             <div className="text-center mb-6">
-              <h1 className="text-xl font-semibold text-white">
-                Create Account
-              </h1>
+              <h1 className="text-xl font-semibold text-white">Create Account</h1>
               <p className="text-sm text-gray-500 mt-1">
                 Start your intelligent data journey 🚀
               </p>
@@ -183,7 +209,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <div>
-                <label className="text-sm text-gray-300">Full Name</label>
+                <label className="text-sm text-gray-300 ml-1">Full Name</label>
                 <div className="relative mt-1">
                   <User className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
                   <input
@@ -191,29 +217,29 @@ export default function RegisterPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your Name"
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40"
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition"
                   />
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label className="text-sm text-gray-300">Email</label>
+                <label className="text-sm text-gray-300 ml-1">Email</label>
                 <div className="relative mt-1">
                   <Mail className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
                   <input
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40"
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/20 transition"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="text-sm text-gray-300">Password</label>
+                <label className="text-sm text-gray-300 ml-1">Password</label>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
                   <input
@@ -221,7 +247,7 @@ export default function RegisterPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-violet-500/40"
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition"
                   />
                 </div>
               </div>
@@ -230,11 +256,11 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-4 relative group"
+                className="w-full mt-4 relative group disabled:opacity-50"
               >
-                <div className="relative flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl text-white font-medium">
+                <div className="relative flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl text-white font-medium hover:from-cyan-500 hover:to-blue-500 transition duration-300 shadow-lg shadow-cyan-900/20">
                   {isLoading ? "Processing..." : "Register"}
-                  <ArrowRight className="w-4 h-4" />
+                  {!isLoading && <ArrowRight className="w-4 h-4" />}
                 </div>
               </button>
             </form>
@@ -242,7 +268,7 @@ export default function RegisterPage() {
             {/* Divider */}
             <div className="my-6 flex items-center gap-3">
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-xs text-gray-500">OR SIGN UP WITH</span>
+              <span className="text-[10px] text-gray-500 font-bold">OR SIGN UP WITH</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
@@ -260,52 +286,34 @@ export default function RegisterPage() {
               />
               Continue with Google
             </button>
+            
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
                 Already have an account?{" "}
                 <span
                   onClick={() => router.push("/")}
-                  className="text-cyan-400 cursor-pointer hover:text-cyan-300"
+                  className="text-cyan-400 cursor-pointer hover:text-cyan-300 font-medium transition"
                 >
                   Sign In
                 </span>
               </p>
             </div>
-
           </div>
-          
         </div>
-
       </div>
+
       <style jsx>{`
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-      opacity: 0.3;
-    }
-    50% {
-      transform: translateY(-40px);
-      opacity: 0.7;
-    }
-  }
-
-  @keyframes blob {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-    }
-    50% {
-      transform: translate(40px, -40px) scale(1.1);
-    }
-  }
-
-  .animate-blob {
-    animation: blob 10s infinite ease-in-out;
-  }
-
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-`}</style>
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); opacity: 0.3; }
+          50% { transform: translateY(-40px); opacity: 0.7; }
+        }
+        @keyframes blob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, -40px) scale(1.1); }
+        }
+        .animate-blob { animation: blob 10s infinite ease-in-out; }
+        .animation-delay-2000 { animation-delay: 2s; }
+      `}</style>
     </div>
   );
 }
