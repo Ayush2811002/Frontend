@@ -190,7 +190,7 @@ export default function DashboardContent({
       case "alerts":
         return <AlertsPanel metadata={dbMetadata || []} />;
       case "lineage":
-        return <DataLineage />;
+        return <DataLineage metadata={dbMetadata} />;
       default:
         return (
           <div className="space-y-6 sm:space-y-8 animate-slide-in-up">

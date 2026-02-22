@@ -6,9 +6,9 @@ const geist = Geist({ subsets: ["latin"] });
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DB-DOC-AI | AI-Powered Data Intelligence Platform",
+  title: "NoMoreNulls | AI-Powered Data Intelligence Platform",
   description: "AI-Powered Data Intelligence Platform for modern enterprises",
-  generator: "v0.app",
+  generator: "Ayush,Satyarth,ujjwal",
 };
 
 export const viewport: Viewport = {
