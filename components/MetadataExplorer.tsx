@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   ChevronRight,
@@ -17,55 +17,59 @@ interface Table {
   rowCount: number;
   columns: number;
   lastUpdated: string;
+  metadata: any; // ✅ ADD THIS
 }
 
-const tables: Table[] = [
-  {
-    id: "1",
-    name: "transactions",
-    status: "healthy",
-    rowCount: 2400000,
-    columns: 15,
-    lastUpdated: "2 hours ago",
-  },
-  {
-    id: "2",
-    name: "user_profiles",
-    status: "healthy",
-    rowCount: 850000,
-    columns: 22,
-    lastUpdated: "1 hour ago",
-  },
-  {
-    id: "3",
-    name: "orders",
-    status: "risk",
-    rowCount: 1200000,
-    columns: 18,
-    lastUpdated: "12 hours ago",
-  },
-  {
-    id: "4",
-    name: "analytics_events",
-    status: "stale",
-    rowCount: 5600000,
-    columns: 25,
-    lastUpdated: "3 days ago",
-  },
-  {
-    id: "5",
-    name: "customer_data",
-    status: "healthy",
-    rowCount: 450000,
-    columns: 12,
-    lastUpdated: "30 mins ago",
-  },
-];
+// const tables: Table[] = [
+//   {
+//     id: "1",
+//     name: "transactions",
+//     status: "healthy",
+//     rowCount: 2400000,
+//     columns: 15,
+//     lastUpdated: "2 hours ago",
+//   },
+//   {
+//     id: "2",
+//     name: "user_profiles",
+//     status: "healthy",
+//     rowCount: 850000,
+//     columns: 22,
+//     lastUpdated: "1 hour ago",
+//   },
+//   {
+//     id: "3",
+//     name: "orders",
+//     status: "risk",
+//     rowCount: 1200000,
+//     columns: 18,
+//     lastUpdated: "12 hours ago",
+//   },
+//   {
+//     id: "4",
+//     name: "analytics_events",
+//     status: "stale",
+//     rowCount: 5600000,
+//     columns: 25,
+//     lastUpdated: "3 days ago",
+//   },
+//   {
+//     id: "5",
+//     name: "customer_data",
+//     status: "healthy",
+//     rowCount: 450000,
+//     columns: 12,
+//     lastUpdated: "30 mins ago",
+//   },
+// ];
 
 export default function MetadataExplorer() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTable, setSelectedTable] = useState<Table | null>(tables[0]);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
+  const [loading, setLoading] = useState(true);
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "healthy":
@@ -95,7 +99,49 @@ export default function MetadataExplorer() {
   const filteredTables = tables.filter((t) =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+  useEffect(() => {
+    const stored = localStorage.getItem("dbMetadata");
 
+    if (!stored) {
+      setLoading(false);
+      return;
+    }
+
+    const data = JSON.parse(stored);
+
+    const mappedTables: Table[] = data.map((table: any, idx: number) => {
+      const lastUpdatedTime = table.freshness?.lastUpdated
+        ? new Date(table.freshness.lastUpdated).getTime()
+        : Date.now();
+
+      const hoursAgo = (Date.now() - lastUpdatedTime) / (1000 * 60 * 60);
+
+      let status: Table["status"] = "healthy";
+      if (hoursAgo > 24) status = "stale";
+      else if (table.risks?.length > 0) status = "risk";
+
+      return {
+        id: String(idx),
+        name: table.tableName ?? table.name ?? "Unknown Table",
+        status,
+        rowCount: table.rowCount ?? 0,
+        columns: table.columns?.length ?? 0,
+        lastUpdated: `${Math.round(hoursAgo)} hours ago`,
+        metadata: table, // ✅ IMPORTANT LINE
+      };
+    });
+
+    setTables(mappedTables);
+    setSelectedTable(mappedTables[0] ?? null);
+    setLoading(false);
+  }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-400">
+        Loading metadata explorer...
+      </div>
+    );
+  }
   return (
     <div className="space-y-6 animate-slide-in-up">
       <div className="animate-slide-in-left">
@@ -162,7 +208,7 @@ export default function MetadataExplorer() {
           style={{ animationDelay: "200ms" }}
         >
           {selectedTable ? (
-            <TableDetailsView table={selectedTable} />
+            <TableDetailsView table={selectedTable.metadata} />
           ) : (
             <div className="glass-effect rounded-2xl p-8 sm:p-12 text-center">
               <p className="text-gray-400 text-sm sm:text-base">

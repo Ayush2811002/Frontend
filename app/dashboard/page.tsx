@@ -100,6 +100,7 @@ export default function DashboardPage() {
               activeSection={activeSection}
               setShowDatabaseModal={setShowDatabaseModal}
               dbMetadata={dbMetadata} // 🔥 PASS DATA
+              isLoading={isLoading}
             />
           </div>
         )}

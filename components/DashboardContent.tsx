@@ -16,53 +16,112 @@ import DataQuality from "./DataQuality";
 import AIChatInterface from "./AIChatInterface";
 import AlertsPanel from "./AlertsPanel";
 import DataLineage from "./DataLineage";
+import { Island_Moments } from "next/font/google";
 
 interface DashboardContentProps {
   activeSection: string;
   setShowDatabaseModal: (show: boolean) => void;
   dbMetadata: any[] | null; // 🔥 NEW PROP
+  isLoading: boolean;
 }
 
 export default function DashboardContent({
   activeSection,
   setShowDatabaseModal,
   dbMetadata,
-}: DashboardContentProps) {
-  const loading = !dbMetadata;
 
+  isLoading,
+}: DashboardContentProps) {
+  // const loading = !dbMetadata;
+  if (isLoading) {
+    return (
+      <div className="flex item-center justify-center h-full text-gray-400">
+        loding/......
+      </div>
+    );
+  }
+
+  //
+  const hoursBetween = (date: Date) =>
+    (Date.now() - date.getTime()) / (1000 * 60 * 60);
+
+  const freshnessScore = (lastUpdated: string) => {
+    const hours = hoursBetween(new Date(lastUpdated));
+
+    if (hours <= 24) return 100;
+    if (hours <= 72) return 80;
+    if (hours <= 168) return 60;
+    return 40;
+  }; // --- HEALTH CALCULATION ---
+  //freshnessScore can be used in the health calculation for each table, along with completeness and uniqueness, to give a more holistic view of data quality.
+
+  //last
+  const timeAgo = (date: Date) => {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins} min ago`;
+    if (mins < 1440) return `${Math.floor(mins / 60)} hrs ago`;
+    return `${Math.floor(mins / 1440)} days ago`;
+  };
+  const freshnessValues =
+    dbMetadata?.map((table) => freshnessScore(table.freshness?.lastUpdated)) ??
+    [];
+
+  const avgFreshness =
+    freshnessValues.length > 0
+      ? Math.round(
+          freshnessValues.reduce((a, b) => a + b, 0) / freshnessValues.length,
+        )
+      : 0;
+  //
+
+  const lastSyncDate =
+    dbMetadata
+      ?.map((t) => new Date(t.freshness?.lastUpdated))
+      .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+  const topTables =
+    dbMetadata
+      ?.map((table) => {
+        const columnCount = table.columns?.length ?? 0;
+
+        // --- HEALTH CALCULATION ---
+        const avgCompleteness =
+          table.dataQuality?.reduce(
+            (sum: number, col: any) => sum + col.completeness,
+            0,
+          ) / (table.dataQuality?.length || 1);
+
+        const avgUniqueness =
+          table.dataQuality?.reduce(
+            (sum: number, col: any) => sum + col.uniqueness,
+            0,
+          ) / (table.dataQuality?.length || 1);
+        const riskPenalty = table.risks?.length ? table.risks.length * 10 : 0;
+
+        const health = Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round((avgCompleteness + avgUniqueness) / 2 - riskPenalty),
+          ),
+        );
+
+        // --- SIZE ESTIMATION ---
+        const estimatedSizeMB = (columnCount * 0.18).toFixed(2);
+
+        return {
+          name: table.tableName,
+          size: `${estimatedSizeMB} MB`,
+          health,
+        };
+      })
+      .sort((a, b) => parseFloat(b.size) - parseFloat(a.size))
+      .slice(0, 5) ?? [];
   const totalTables = dbMetadata?.length ?? 0;
   const totalColumns =
     dbMetadata?.reduce((sum, table) => sum + (table.columns?.length || 0), 0) ??
     0;
 
-  // const metrics = dashboardMetrics
-  //   ? [
-  //       {
-  //         label: "Total Tables",
-  //         value: dashboardMetrics.totalTables,
-  //         icon: Database,
-  //         color: "from-cyan-500 to-blue-500",
-  //       },
-  //       {
-  //         label: "Healthy Tables",
-  //         value: dashboardMetrics.healthyTables,
-  //         icon: CheckCircle,
-  //         color: "from-green-500 to-emerald-500",
-  //       },
-  //       {
-  //         label: "Risky Tables",
-  //         value: dashboardMetrics.riskyTables,
-  //         icon: AlertTriangle,
-  //         color: "from-yellow-500 to-orange-500",
-  //       },
-  //       {
-  //         label: "Avg Freshness",
-  //         value: `${dashboardMetrics.avgFreshness}%`,
-  //         icon: TrendingUp,
-  //         color: "from-purple-500 to-pink-500",
-  //       },
-  //     ]
-  //   : [];
   const metrics = [
     {
       label: "Total Tables",
@@ -84,7 +143,7 @@ export default function DashboardContent({
     },
     {
       label: "Avg Freshness",
-      value: "94%",
+      value: `${avgFreshness}%`,
       icon: TrendingUp,
       color: "from-purple-500 to-pink-500",
     },
@@ -106,7 +165,7 @@ export default function DashboardContent({
     },
     {
       label: "Last Sync",
-      value: "Just now",
+      value: lastSyncDate ? timeAgo(lastSyncDate) : "—",
       icon: Clock,
       color: "from-orange-500 to-red-500",
       change: "ago",
@@ -119,13 +178,7 @@ export default function DashboardContent({
       change: "+3%",
     },
   ];
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full text-gray-400">
-        Loading dashboard...
-      </div>
-    );
-  }
+
   const renderContent = () => {
     switch (activeSection) {
       case "explorer":
@@ -135,7 +188,7 @@ export default function DashboardContent({
       case "chat":
         return <AIChatInterface />;
       case "alerts":
-  return <AlertsPanel metadata={dbMetadata || []} />;
+        return <AlertsPanel metadata={dbMetadata || []} />;
       case "lineage":
         return <DataLineage />;
       default:
@@ -265,11 +318,7 @@ export default function DashboardContent({
                   Top Tables by Size
                 </h3>
                 <div className="space-y-2 sm:space-y-4">
-                  {[
-                    { name: "transactions", size: "2.4 GB", health: 95 },
-                    { name: "user_profiles", size: "1.8 GB", health: 88 },
-                    { name: "analytics_events", size: "1.2 GB", health: 76 },
-                  ].map((table, idx) => (
+                  {topTables.map((table, idx) => (
                     <div
                       key={idx}
                       className="pb-2 sm:pb-4 border-b border-white/5 last:border-0 group hover:bg-white/5 p-2 rounded transition-all duration-300 ease-out"
@@ -282,9 +331,16 @@ export default function DashboardContent({
                           {table.size}
                         </p>
                       </div>
+
                       <div className="w-full h-1.5 sm:h-2 bg-white/5 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:shadow-lg group-hover:shadow-cyan-500/50 transition-all duration-500 ease-out rounded-full"
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            table.health > 80
+                              ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                              : table.health > 50
+                                ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                                : "bg-gradient-to-r from-red-500 to-pink-500"
+                          }`}
                           style={{ width: `${table.health}%` }}
                         />
                       </div>
