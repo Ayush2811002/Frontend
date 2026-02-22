@@ -135,7 +135,7 @@ export default function DashboardContent({
       case "chat":
         return <AIChatInterface />;
       case "alerts":
-        return <AlertsPanel />;
+  return <AlertsPanel metadata={dbMetadata || []} />;
       case "lineage":
         return <DataLineage />;
       default:
