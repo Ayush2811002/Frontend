@@ -131,7 +131,7 @@ export default function DashboardContent({
       case "explorer":
         return <MetadataExplorer />;
       case "quality":
-        return <DataQuality />;
+        return <DataQuality metadata={dbMetadata || []} />;
       case "chat":
         return <AIChatInterface />;
       case "alerts":
